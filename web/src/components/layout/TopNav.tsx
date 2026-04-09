@@ -27,7 +27,7 @@ export function TopNav({ solvedCount, totalCount }: TopNavProps) {
       <div className="flex items-center gap-8">
         <Link href="/" className="flex items-center gap-2 text-text-primary font-semibold text-lg tracking-tight">
           <Flame className="w-5 h-5 text-accent" />
-          Pyre
+          Pyre Code
         </Link>
         <div className="flex items-center gap-1">
           {links.map((link) => (

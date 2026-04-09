@@ -6,7 +6,7 @@ import { LocaleProvider } from "@/context/LocaleContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Pyre",
+  title: "Pyre Code",
   description: "68 hands-on AI systems challenges — implement the internals of attention, RLHF, diffusion, and distributed training",
 };
 

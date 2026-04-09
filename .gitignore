@@ -32,6 +32,7 @@ labextension/torchcode_labext/labextension/
 labextension/tsconfig.tsbuildinfo
 labextension/yarn.lock
 .worktrees/
+.omc/
 
 # Runtime data
 web/data/
