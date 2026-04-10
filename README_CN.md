@@ -189,3 +189,11 @@ pyre/
 
 较大的改动请先开 issue 讨论方案。
 
+---
+
+## ⭐ Star History
+
+![GitHub stars](https://img.shields.io/github/stars/whwangovo/pyre-code?style=social)
+
+[![Star History Chart](https://api.star-history.com/svg?repos=whwangovo/pyre-code&type=Date)](https://star-history.com/#whwangovo/pyre-code&Date)
+

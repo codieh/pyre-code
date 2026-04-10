@@ -189,3 +189,11 @@ Contributions are welcome! Here are some ways you can help:
 
 Please open an issue first for larger changes so we can discuss the approach.
 
+---
+
+## ⭐ Star History
+
+![GitHub stars](https://img.shields.io/github/stars/whwangovo/pyre-code?style=social)
+
+[![Star History Chart](https://api.star-history.com/svg?repos=whwangovo/pyre-code&type=Date)](https://star-history.com/#whwangovo/pyre-code&Date)
+
