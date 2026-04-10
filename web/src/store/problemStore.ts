@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { SubmissionResult, CustomTest } from '@/lib/types';
+import type { SubmissionResult, CustomTest, AiHelpConfig } from '@/lib/types';
 
 interface ProblemStore {
   currentCode: string;
@@ -23,6 +23,19 @@ interface ProblemStore {
   setIsRunning: (v: boolean) => void;
   runResult: SubmissionResult | null;
   setRunResult: (r: SubmissionResult | null) => void;
+  aiHelpConfig: AiHelpConfig;
+  setAiHelpConfig: (patch: Partial<AiHelpConfig>) => void;
+  aiHelpConfigOpen: boolean;
+  setAiHelpConfigOpen: (value: boolean) => void;
+  aiHelpCustomPrompt: string;
+  setAiHelpCustomPrompt: (value: string) => void;
+  aiHelpResponse: string | null;
+  setAiHelpResponse: (response: string | null) => void;
+  aiHelpError: string | null;
+  setAiHelpError: (error: string | null) => void;
+  aiHelpLoading: boolean;
+  setAiHelpLoading: (value: boolean) => void;
+  resetAiHelp: () => void;
   resetTestPanel: () => void;
 }
 
@@ -52,5 +65,23 @@ export const useProblemStore = create<ProblemStore>((set) => ({
   setIsRunning: (v) => set({ isRunning: v }),
   runResult: null,
   setRunResult: (r) => set({ runResult: r }),
+  aiHelpConfig: {
+    baseUrl: '',
+    apiKey: '',
+    model: '',
+    includeUserCode: false,
+  },
+  setAiHelpConfig: (patch) => set((s) => ({ aiHelpConfig: { ...s.aiHelpConfig, ...patch } })),
+  aiHelpConfigOpen: false,
+  setAiHelpConfigOpen: (value) => set({ aiHelpConfigOpen: value }),
+  aiHelpCustomPrompt: '',
+  setAiHelpCustomPrompt: (value) => set({ aiHelpCustomPrompt: value }),
+  aiHelpResponse: null,
+  setAiHelpResponse: (response) => set({ aiHelpResponse: response }),
+  aiHelpError: null,
+  setAiHelpError: (error) => set({ aiHelpError: error }),
+  aiHelpLoading: false,
+  setAiHelpLoading: (value) => set({ aiHelpLoading: value }),
+  resetAiHelp: () => set({ aiHelpResponse: null, aiHelpError: null, aiHelpLoading: false }),
   resetTestPanel: () => set({ bottomTab: 'testcases', selectedCaseIndex: 0, customTests: [], runResult: null }),
 }));

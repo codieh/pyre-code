@@ -4,20 +4,12 @@ import { Plus, X } from 'lucide-react';
 import { PythonCode } from '@/lib/pythonHighlight';
 import { useLocale } from '@/context/LocaleContext';
 import { useProblemStore } from '@/store/problemStore';
+import { formatTestCode } from '@/lib/problemContext';
 import type { Test } from '@/lib/types';
 
 interface TestCasesViewProps {
   tests: Test[];
   functionName: string;
-}
-
-function formatTestCode(code: string, functionName: string): string {
-  return code
-    .replace(/\{fn\}/g, functionName)
-    .split('\n')
-    .filter(l => !l.startsWith('import ') && !l.startsWith('from '))
-    .join('\n')
-    .trim();
 }
 
 export function TestCasesView({ tests, functionName }: TestCasesViewProps) {

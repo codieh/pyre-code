@@ -3,6 +3,7 @@
 import { CodeEditor } from './CodeEditor';
 import { useLocale } from '@/context/LocaleContext';
 import solutionsData from '@/lib/solutions.json';
+import { getSolutionCode } from '@/lib/problemContext';
 
 interface Cell {
   type: string;
@@ -23,10 +24,7 @@ export function SolutionTab({ problemId }: SolutionTabProps) {
     return <div className="p-6 text-sm text-text-tertiary">{t('noSolution')}</div>;
   }
 
-  const solutionCode = cells
-    .filter((c) => c.role === 'solution')
-    .map((c) => c.source)
-    .join('\n\n');
+  const solutionCode = getSolutionCode(problemId);
 
   const demoCode = cells
     .filter((c) => c.role === 'demo')

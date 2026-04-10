@@ -10,12 +10,13 @@ import { TopNav } from '@/components/layout/TopNav';
 import { ProblemDrawer } from '@/components/layout/ProblemDrawer';
 import { DescriptionTab } from '@/components/workspace/DescriptionTab';
 import { SolutionTab } from '@/components/workspace/SolutionTab';
+import { AIHelpTab } from '@/components/workspace/AIHelpTab';
 import { CodeEditor } from '@/components/workspace/CodeEditor';
 import { TestPanel } from '@/components/workspace/TestPanel';
 import { ActionBar } from '@/components/workspace/ActionBar';
 import { useProblemStore } from '@/store/problemStore';
 import { useLocale } from '@/context/LocaleContext';
-import type { Problem, ProgressMap, SubmissionResult, LearningPath } from '@/lib/types';
+import type { Problem, ProgressMap, SubmissionResult, LearningPath, LearningPathProblemSummary } from '@/lib/types';
 
 export default function WorkspacePage() {
   const { id } = useParams<{ id: string }>();
@@ -29,13 +30,13 @@ export default function WorkspacePage() {
     isSubmitting, setIsSubmitting,
     drawerOpen, setDrawerOpen,
     isRunning, setIsRunning,
-    setRunResult, setBottomTab, resetTestPanel,
+    setRunResult, setBottomTab, resetTestPanel, resetAiHelp,
   } = useProblemStore();
 
   const [problem, setProblem] = useState<(Problem & { starterCode?: string }) | null>(null);
   const [allProblems, setAllProblems] = useState<Problem[]>([]);
   const [progress, setProgress] = useState<ProgressMap>({});
-  const [pathData, setPathData] = useState<(LearningPath & { problems: Array<{ id: string; title: string; difficulty: string; status: string }> }) | null>(null);
+  const [pathData, setPathData] = useState<(Omit<LearningPath, 'problems'> & { problems: LearningPathProblemSummary[] }) | null>(null);
 
   useEffect(() => {
     fetch(`/api/problems/${id}`)
@@ -45,6 +46,7 @@ export default function WorkspacePage() {
         setCurrentCode(data.starterCode || '');
         setSubmissionResult(null);
         resetTestPanel();
+        resetAiHelp();
       });
     fetch('/api/problems')
       .then((r) => r.json())
@@ -59,7 +61,7 @@ export default function WorkspacePage() {
     } else {
       setPathData(null);
     }
-  }, [id, pathId, setCurrentCode, setSubmissionResult, resetTestPanel]);
+  }, [id, pathId, setCurrentCode, setSubmissionResult, resetTestPanel, resetAiHelp]);
 
   const handleRun = async () => {
     if (!problem || isRunning) return;
@@ -183,12 +185,21 @@ export default function WorkspacePage() {
           >
             {t('solution')}
           </Tabs.Trigger>
+          <Tabs.Trigger
+            value="ai-help"
+            className="px-3 py-2 text-sm data-[state=active]:text-accent data-[state=active]:border-b-2 data-[state=active]:border-accent data-[state=inactive]:text-text-secondary hover:text-text-primary transition-colors -mb-px"
+          >
+            {t('aiHelp')}
+          </Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="description" className="flex-1 overflow-auto">
           <DescriptionTab problem={problem} />
         </Tabs.Content>
         <Tabs.Content value="solution" className="flex-1 overflow-auto">
           <SolutionTab problemId={problem.id} />
+        </Tabs.Content>
+        <Tabs.Content value="ai-help" className="flex-1 overflow-auto">
+          <AIHelpTab problem={problem} />
         </Tabs.Content>
       </Tabs.Root>
     </div>
