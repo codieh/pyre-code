@@ -54,37 +54,39 @@ cd pyre
 npm run dev
 ```
 
-`setup.sh` automatically creates and activates a Python environment (prefers `uv` → `conda` → `venv`), installs all dependencies, then prints the start command.
+`setup.sh` automatically creates a `.venv` Python environment (prefers `uv`, falls back to `python3 -m venv`), installs all dependencies, then prints the start command.
 
-**Option B — manual**
+**Option B — conda**
+
+```bash
+git clone https://github.com/whwangovo/pyre.git
+cd pyre
+conda create -n pyre python=3.11 -y && conda activate pyre
+pip install -e ".[dev]"
+npm install
+npm run dev   # run with conda env activated
+```
+
+**Option C — manual (venv)**
 
 ```bash
 git clone https://github.com/whwangovo/pyre.git
 cd pyre
 
 # create a Python env — pick one:
-uv venv --python 3.11 .venv && source .venv/bin/activate && uv pip install -e .
-# or: python3 -m venv .venv && source .venv/bin/activate && pip install -e .
+uv venv --python 3.11 .venv && source .venv/bin/activate && uv pip install -e ".[dev]"
+# or: python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"
 
 npm install
 npm run dev
 ```
-
-> **conda users:** `npm run dev` expects `.venv/bin/python`, so if you use conda you must activate the environment before running `npm run dev`:
->
-> ```bash
-> conda create -n pyre python=3.11 -y && conda activate pyre
-> pip install -e .
-> npm install
-> npm run dev   # run with conda env activated
-> ```
 
 Either way, once running:
 
 - **Grading service** → `http://localhost:8000`
 - **Web app** → `http://localhost:3000`
 
-**Option C — Docker**
+**Option D — Docker**
 
 ```bash
 git clone https://github.com/whwangovo/pyre.git

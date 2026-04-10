@@ -2,26 +2,18 @@
 set -e
 
 PYTHON_VERSION="3.11"
-ENV_NAME="pyre"
 
-# Create and activate virtual environment
+# Create .venv and install dependencies
 if command -v uv &> /dev/null; then
   echo "Using uv..."
   uv venv --python "$PYTHON_VERSION" .venv
   source .venv/bin/activate
-  uv pip install -e .
-elif command -v conda &> /dev/null; then
-  echo "Using conda..."
-  conda create -n "$ENV_NAME" python="$PYTHON_VERSION" -y
-  # shellcheck disable=SC1091
-  source "$(conda info --base)/etc/profile.d/conda.sh"
-  conda activate "$ENV_NAME"
-  pip install -e .
+  uv pip install -e ".[dev]"
 else
   echo "Using system python venv..."
   python3 -m venv .venv
   source .venv/bin/activate
-  pip install -e .
+  pip install -e ".[dev]"
 fi
 
 # Install Node deps
@@ -30,4 +22,3 @@ npm ci
 echo ""
 echo "Setup complete."
 echo "To start: npm run dev"
-echo "(No need to activate the virtual environment manually.)"

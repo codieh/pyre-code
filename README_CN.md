@@ -54,37 +54,39 @@ cd pyre
 npm run dev
 ```
 
-`setup.sh` 自动创建并激活 Python 环境（优先级：`uv` → `conda` → `venv`），安装所有依赖，完成后打印启动命令。
+`setup.sh` 自动创建 `.venv` Python 环境（优先 `uv`，回退到 `python3 -m venv`），安装所有依赖，完成后打印启动命令。
 
-**方式 B — 手动安装**
+**方式 B — conda**
+
+```bash
+git clone https://github.com/whwangovo/pyre.git
+cd pyre
+conda create -n pyre python=3.11 -y && conda activate pyre
+pip install -e ".[dev]"
+npm install
+npm run dev   # 需在 conda 环境激活状态下运行
+```
+
+**方式 C — 手动安装（venv）**
 
 ```bash
 git clone https://github.com/whwangovo/pyre.git
 cd pyre
 
 # 创建 Python 环境（二选一）：
-uv venv --python 3.11 .venv && source .venv/bin/activate && uv pip install -e .
-# 或：python3 -m venv .venv && source .venv/bin/activate && pip install -e .
+uv venv --python 3.11 .venv && source .venv/bin/activate && uv pip install -e ".[dev]"
+# 或：python3 -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"
 
 npm install
 npm run dev
 ```
-
-> **conda 用户：** `npm run dev` 默认使用 `.venv/bin/python`，如果你用 conda 则需要先激活环境再运行 `npm run dev`：
->
-> ```bash
-> conda create -n pyre python=3.11 -y && conda activate pyre
-> pip install -e .
-> npm install
-> npm run dev   # 需在 conda 环境激活状态下运行
-> ```
 
 启动后：
 
 - **评测服务** → `http://localhost:8000`
 - **Web 界面** → `http://localhost:3000`
 
-**方式 C — Docker**
+**方式 D — Docker**
 
 ```bash
 git clone https://github.com/whwangovo/pyre.git
