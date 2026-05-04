@@ -89,6 +89,17 @@ const en = {
   aiHelpRequestFailed: 'AI request failed.',
   aiHelpSafetyNote: 'The assistant is instructed to give hints and debugging guidance, not a full answer.',
   aiHelpServerConfigured: 'Using server-configured AI endpoint.',
+  aiHelpQuickPrompts: 'Quick Prompts',
+  aiHelpPromptExplain: 'Explain the core idea',
+  aiHelpPromptExplainDesc: 'Walk through the key concepts and intuition behind this problem',
+  aiHelpPromptDebug: 'Debug my code',
+  aiHelpPromptDebugDesc: 'Analyze my current code and point out issues',
+  aiHelpPromptStepByStep: 'Step-by-step guide',
+  aiHelpPromptStepByStepDesc: 'Break down the implementation into manageable steps',
+  aiHelpPromptEdgeCases: 'Edge cases & pitfalls',
+  aiHelpPromptEdgeCasesDesc: 'Highlight tricky corner cases and common mistakes',
+  aiHelpClearCache: 'Clear cached response',
+  aiHelpSavedTime: 'Generated at {time}',
 } as const;
 
 type Translations = Record<keyof typeof en, string>;
@@ -174,6 +185,17 @@ const zh: Translations = {
   aiHelpRequestFailed: 'AI 请求失败。',
   aiHelpSafetyNote: '助手被要求优先给提示和排查思路，而不是直接给完整答案。',
   aiHelpServerConfigured: '已使用服务端配置的 AI 接口。',
+  aiHelpQuickPrompts: '快捷提问',
+  aiHelpPromptExplain: '讲解核心思路',
+  aiHelpPromptExplainDesc: '介绍这道题的关键概念和直觉理解',
+  aiHelpPromptDebug: '帮我调试代码',
+  aiHelpPromptDebugDesc: '分析当前代码并指出问题所在',
+  aiHelpPromptStepByStep: '分步实现指南',
+  aiHelpPromptStepByStepDesc: '将实现拆解为可管理的小步骤',
+  aiHelpPromptEdgeCases: '边界条件与陷阱',
+  aiHelpPromptEdgeCasesDesc: '列举容易踩坑的边界情况和常见错误',
+  aiHelpClearCache: '清除缓存的回复',
+  aiHelpSavedTime: '生成于 {time}',
 };
 
 export const dictionaries = { en, zh };

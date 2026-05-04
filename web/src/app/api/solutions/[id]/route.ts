@@ -6,9 +6,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const data = (solutions as Record<string, { cells: unknown[] }>)[id];
-  if (!data) {
+  const entry = (solutions as Record<string, Record<string, unknown[]>>)[id];
+  if (!entry) {
     return NextResponse.json({ error: 'Solution not found' }, { status: 404 });
   }
-  return NextResponse.json(data);
+  // Support both old format ({ cells }) and new format ({ reference, interview })
+  if ('cells' in entry) {
+    return NextResponse.json(entry);
+  }
+  return NextResponse.json({ variants: entry });
 }

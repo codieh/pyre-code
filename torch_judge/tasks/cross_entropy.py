@@ -26,7 +26,20 @@ TASK = {
             "code": "\nimport torch\nlogits = torch.randn(8, 5, requires_grad=True)\ntargets = torch.randint(0, 5, (8,))\n{fn}(logits, targets).backward()\nassert logits.grad is not None, 'logits.grad is None'\n"
         }
     ],
-    "solution": '''def cross_entropy_loss(logits, targets):
+    "solution": '''# 交叉熵损失 = -log(softmax(logits)[target])
+# 直接算: -log(exp(logits[target]) / sum(exp(logits)))
+# 但 exp(大 logits) 会溢出！所以用 log-sum-exp 恒等式:
+#   log(softmax(x)) = x - log(sum(exp(x))) = x - logsumexp(x)
+
+def cross_entropy_loss(logits, targets):
+    # 第一步: 用 log-sum-exp 技巧计算 log-softmax（数值稳定）
+    # logsumexp(logits, dim=-1) 计算 log(sum_j exp(z_j))，内部做了防溢出处理
+    # keepdim=True 保持维度为 (B, 1)，方便和 (B, C) 的 logits 广播
     log_probs = logits - torch.logsumexp(logits, dim=-1, keepdim=True)
+
+    # 第二步: 选出每个样本对应正确类别的 log 概率
+    # torch.arange(B) 生成行索引 [0, 1, ..., B-1]
+    # targets 是每行的列索引 → 得到 log_probs[i, targets[i]]
+    # .mean() 对 batch 维度求平均
     return -log_probs[torch.arange(targets.shape[0]), targets].mean()''',
 }

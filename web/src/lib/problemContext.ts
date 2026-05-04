@@ -7,9 +7,20 @@ interface SolutionCell {
   role: string;
 }
 
+type SolutionEntry =
+  | { cells: SolutionCell[] }                          // old format
+  | { reference?: SolutionCell[]; interview?: SolutionCell[] }; // new format
+
+function getCells(entry: SolutionEntry | undefined): SolutionCell[] {
+  if (!entry) return [];
+  if ('cells' in entry) return entry.cells;
+  // Prefer interview variant
+  return entry.interview?.length ? entry.interview : entry.reference ?? [];
+}
+
 export function getSolutionCode(problemId: string): string {
-  const data = (solutionsData as Record<string, { cells: SolutionCell[] }>)[problemId];
-  const cells = data?.cells ?? [];
+  const entry = (solutionsData as Record<string, SolutionEntry>)[problemId];
+  const cells = getCells(entry);
 
   return cells
     .filter((cell) => cell.role === 'solution')

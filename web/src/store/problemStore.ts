@@ -33,11 +33,15 @@ interface ProblemStore {
   setAiHelpCustomPrompt: (value: string) => void;
   aiHelpResponse: string | null;
   setAiHelpResponse: (response: string | null) => void;
+  aiHelpSavedAt: number | null;
   aiHelpError: string | null;
   setAiHelpError: (error: string | null) => void;
   aiHelpLoading: boolean;
   setAiHelpLoading: (value: boolean) => void;
   resetAiHelp: () => void;
+  loadAiHelpResponse: (problemId: string) => void;
+  saveAiHelpResponse: (problemId: string, guidance: string, model: string) => void;
+  clearAiHelpResponse: (problemId: string) => void;
   resetTestPanel: () => void;
 }
 
@@ -82,10 +86,49 @@ export const useProblemStore = create<ProblemStore>((set) => ({
   setAiHelpCustomPrompt: (value) => set({ aiHelpCustomPrompt: value }),
   aiHelpResponse: null,
   setAiHelpResponse: (response) => set({ aiHelpResponse: response }),
+  aiHelpSavedAt: null,
   aiHelpError: null,
   setAiHelpError: (error) => set({ aiHelpError: error }),
   aiHelpLoading: false,
   setAiHelpLoading: (value) => set({ aiHelpLoading: value }),
-  resetAiHelp: () => set({ aiHelpResponse: null, aiHelpError: null, aiHelpLoading: false }),
+  resetAiHelp: () => set({ aiHelpResponse: null, aiHelpSavedAt: null, aiHelpError: null, aiHelpLoading: false }),
+  loadAiHelpResponse: (problemId) => {
+    try {
+      const raw = localStorage.getItem('ai_help_cache');
+      if (!raw) { set({ aiHelpResponse: null, aiHelpSavedAt: null }); return; }
+      const cache = JSON.parse(raw) as Record<string, { guidance: string; model: string; savedAt: number }>;
+      const entry = cache[problemId];
+      if (entry) {
+        set({ aiHelpResponse: entry.guidance, aiHelpSavedAt: entry.savedAt });
+      } else {
+        set({ aiHelpResponse: null, aiHelpSavedAt: null });
+      }
+    } catch {
+      set({ aiHelpResponse: null, aiHelpSavedAt: null });
+    }
+  },
+  saveAiHelpResponse: (problemId, guidance, _model) => {
+    try {
+      const raw = localStorage.getItem('ai_help_cache');
+      const cache: Record<string, { guidance: string; model: string; savedAt: number }> = raw ? JSON.parse(raw) : {};
+      const savedAt = Date.now();
+      cache[problemId] = { guidance, model: _model, savedAt };
+      localStorage.setItem('ai_help_cache', JSON.stringify(cache));
+      set({ aiHelpResponse: guidance, aiHelpSavedAt: savedAt });
+    } catch {
+      // localStorage full or unavailable — fail silently
+    }
+  },
+  clearAiHelpResponse: (problemId) => {
+    try {
+      const raw = localStorage.getItem('ai_help_cache');
+      if (raw) {
+        const cache = JSON.parse(raw) as Record<string, unknown>;
+        delete cache[problemId];
+        localStorage.setItem('ai_help_cache', JSON.stringify(cache));
+      }
+    } catch { /* ignore */ }
+    set({ aiHelpResponse: null, aiHelpSavedAt: null });
+  },
   resetTestPanel: () => set({ bottomTab: 'testcases', selectedCaseIndex: 0, customTests: [], runResult: null, submissionHistory: [] }),
 }));

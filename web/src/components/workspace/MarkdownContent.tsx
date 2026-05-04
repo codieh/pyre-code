@@ -1,6 +1,8 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import { PythonCode } from '@/lib/pythonHighlight';
 
 interface MarkdownContentProps {
@@ -11,7 +13,21 @@ type Block =
   | { type: 'heading'; level: 1 | 2 | 3; content: string }
   | { type: 'list'; items: string[] }
   | { type: 'paragraph'; content: string }
-  | { type: 'code'; language: string; content: string };
+  | { type: 'code'; language: string; content: string }
+  | { type: 'math-block'; content: string };
+
+function renderKatex(latex: string, displayMode: boolean): string {
+  try {
+    return katex.renderToString(latex, {
+      displayMode,
+      throwOnError: false,
+      strict: false,
+      trust: true,
+    });
+  } catch {
+    return displayMode ? `$$${latex}$$` : `$${latex}$`;
+  }
+}
 
 function parseBlocks(content: string): Block[] {
   const normalized = content.replace(/\r\n/g, '\n');
@@ -25,6 +41,34 @@ function parseBlocks(content: string): Block[] {
 
     if (!trimmed) {
       i += 1;
+      continue;
+    }
+
+    // Block math: $$ ... $$ or \[ ... \]
+    if (trimmed.startsWith('$$') || trimmed.startsWith('\\[')) {
+      const open = trimmed.startsWith('$$') ? '$$' : '\\[';
+      const close = open === '$$' ? '$$' : '\\]';
+      // Single-line: $$...$$ or \[...\]
+      if (trimmed.endsWith(close) && trimmed.length > open.length + close.length) {
+        blocks.push({ type: 'math-block', content: trimmed.slice(open.length, -close.length) });
+        i += 1;
+        continue;
+      }
+      // Multi-line
+      const mathLines: string[] = [];
+      i += 1;
+      while (i < lines.length) {
+        const currentTrimmed = lines[i].trim();
+        if (currentTrimmed.endsWith(close)) {
+          const content = currentTrimmed.slice(0, -close.length);
+          if (content) mathLines.push(content);
+          i += 1;
+          break;
+        }
+        mathLines.push(lines[i]);
+        i += 1;
+      }
+      blocks.push({ type: 'math-block', content: mathLines.join('\n') });
       continue;
     }
 
@@ -72,6 +116,8 @@ function parseBlocks(content: string): Block[] {
       const paragraphTrimmed = paragraphLine.trim();
       if (!paragraphTrimmed) break;
       if (paragraphTrimmed.startsWith('```')) break;
+      if (paragraphTrimmed.startsWith('$$')) break;
+      if (paragraphTrimmed.startsWith('\\[')) break;
       if (/^(#{1,3})\s+/.test(paragraphTrimmed)) break;
       if (/^[-*]\s+/.test(paragraphTrimmed)) break;
       paragraphLines.push(paragraphLine);
@@ -85,7 +131,8 @@ function parseBlocks(content: string): Block[] {
 
 function renderInline(text: string): ReactNode[] {
   const parts: ReactNode[] = [];
-  const pattern = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  // Match: **bold**, `code`, $$...$$ (display), $...$ (inline math), \[...\] (display), \(...\) (inline)
+  const pattern = /(\*\*[^*]+\*\*|`[^`]+`|\$\$[\s\S]+?\$\$|\$(?!\$)[^$\n]+?\$|\\\[[\s\S]+?\\\]|\\\([^\n]+?\\\))/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
@@ -110,6 +157,36 @@ function renderInline(text: string): ReactNode[] {
           {token.slice(1, -1)}
         </code>
       );
+    } else if (token.startsWith('$$') && token.endsWith('$$')) {
+      parts.push(
+        <span
+          key={`${match.index}-math-block`}
+          className="my-1 block overflow-x-auto"
+          dangerouslySetInnerHTML={{ __html: renderKatex(token.slice(2, -2), true) }}
+        />
+      );
+    } else if (token.startsWith('\\[') && token.endsWith('\\]')) {
+      parts.push(
+        <span
+          key={`${match.index}-math-display`}
+          className="my-1 block overflow-x-auto"
+          dangerouslySetInnerHTML={{ __html: renderKatex(token.slice(2, -2), true) }}
+        />
+      );
+    } else if (token.startsWith('\\(') && token.endsWith('\\)')) {
+      parts.push(
+        <span
+          key={`${match.index}-math-paren`}
+          dangerouslySetInnerHTML={{ __html: renderKatex(token.slice(2, -2), false) }}
+        />
+      );
+    } else if (token.startsWith('$') && token.endsWith('$')) {
+      parts.push(
+        <span
+          key={`${match.index}-math-inline`}
+          dangerouslySetInnerHTML={{ __html: renderKatex(token.slice(1, -1), false) }}
+        />
+      );
     }
 
     lastIndex = match.index + token.length;
@@ -120,6 +197,15 @@ function renderInline(text: string): ReactNode[] {
   }
 
   return parts;
+}
+
+function renderMathBlock(content: string) {
+  return (
+    <div
+      className="overflow-x-auto py-2"
+      dangerouslySetInnerHTML={{ __html: renderKatex(content, true) }}
+    />
+  );
 }
 
 function renderCodeBlock(language: string, content: string) {
@@ -173,6 +259,10 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
 
         if (block.type === 'code') {
           return <div key={index}>{renderCodeBlock(block.language, block.content)}</div>;
+        }
+
+        if (block.type === 'math-block') {
+          return <div key={index}>{renderMathBlock(block.content)}</div>;
         }
 
         return (
